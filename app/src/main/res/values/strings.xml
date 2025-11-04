@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Carteira Virtual</string>
+    <string name="meus_ativos">Meus Ativos</string>
+    <string name="converter_recursos">Converter Recursos</string>
+    <string name="converter">Converter</string>
+    <string name="moeda_origem">Moeda Origem:</string>
+    <string name="moeda_destino">Moeda Destino:</string>
+    <string name="valor_a_converter">Valor a converter</string>
+    <string name="valor_convertido">Valor convertido:</string>
+    <string name="erro_saldo_insuficiente">Saldo insuficiente para esta operação.</string>
+    <string name="erro_api">Erro ao buscar cotação. Tente novamente.</string>
+    <string name="erro_mesma_moeda">Moeda de origem e destino não podem ser iguais.</string>
+    <string name="erro_valor_invalido">Por favor, insira um valor maior que zero.</string>
+    <string name="conversao_sucesso">Conversão realizada com sucesso!</string>
+
+    <string-array name="moedas">
+        <item>BRL</item>
+        <item>USD</item>
+        <item>BTC</item>
+    </string-array>
+</resources>
