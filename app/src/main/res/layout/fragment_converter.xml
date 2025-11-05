@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="24dp"
-    tools:context="com.mobile.carteiravirtual.ConverterActivity">
+    tools:context="com.mobile.carteiravirtual.ConverterFragment">
 
     <TextView
         android:id="@+id/tvLabelOrigem"

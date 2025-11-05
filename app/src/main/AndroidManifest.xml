@@ -20,12 +20,12 @@
 
         <!-- 2. Declaração da Activity de Conversão -->
         <activity
-            android:name=".ConverterActivity"
+            android:name=".ConverterFragment"
             android:exported="false" />
 
         <!-- 3. Declaração da Activity Principal (LAUNCHER) -->
         <activity
-            android:name=".MainActivity"
+            android:name=".HomeFragment"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
