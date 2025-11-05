@@ -2,99 +2,149 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background_gradient"
     android:padding="24dp"
-    tools:context="com.mobile.carteiravirtual.MainActivity">
+    tools:context=".MainActivity">
 
     <TextView
         android:id="@+id/tvTitulo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/meus_ativos"
-        android:textSize="24sp"
+        android:textColor="@color/textPrimary"
+        android:textSize="28sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Saldo BRL -->
-    <TextView
-        android:id="@+id/tvLabelSaldoReal"
-        android:layout_width="wrap_content"
+    <!-- Card para Saldo em Real -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardReal"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="Real Brasileiro (BRL)"
-        android:textSize="18sp"
+        app:cardBackgroundColor="@color/cardBackground"
+        app:cardCornerRadius="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitulo" />
+        app:layout_constraintTop_toBottomOf="@id/tvTitulo">
 
-    <TextView
-        android:id="@+id/tvSaldoReal"
-        android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Saldo em Real (BRL)"
+                android:textColor="@color/textSecondary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tvSaldoReal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/textPrimary"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                tools:text="R$ 100.000,00" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Card para Saldo em Dólar -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardDolar"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
+        android:layout_marginTop="16dp"
+        app:cardBackgroundColor="@color/cardBackground"
+        app:cardCornerRadius="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvLabelSaldoReal"
-        tools:text="R$ 100.000,00" />
+        app:layout_constraintTop_toBottomOf="@id/cardReal">
 
-    <!-- Saldo USD -->
-    <TextView
-        android:id="@+id/tvLabelSaldoDolar"
-        android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Saldo em Dólar (USD)"
+                android:textColor="@color/textSecondary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tvSaldoDolar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/textPrimary"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                tools:text="$ 50.000,00" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Card para Saldo em Bitcoin -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardBitcoin"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Dólar Americano (USD)"
-        android:textSize="18sp"
+        android:layout_marginTop="16dp"
+        app:cardBackgroundColor="@color/cardBackground"
+        app:cardCornerRadius="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvSaldoReal" />
+        app:layout_constraintTop_toBottomOf="@id/cardDolar">
 
-    <TextView
-        android:id="@+id/tvSaldoDolar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvLabelSaldoDolar"
-        tools:text="$ 50.000,00" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-    <!-- Saldo BTC -->
-    <TextView
-        android:id="@+id/tvLabelSaldoBitcoin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Bitcoin (BTC)"
-        android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvSaldoDolar" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Saldo em Bitcoin (BTC)"
+                android:textColor="@color/textSecondary"
+                android:textSize="16sp" />
 
-    <TextView
-        android:id="@+id/tvSaldoBitcoin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvLabelSaldoBitcoin"
-        tools:text="BTC 0,5000" />
+            <TextView
+                android:id="@+id/tvSaldoBitcoin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/textPrimary"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                tools:text="BTC 0,5000" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
-    <!-- Botão Converter -->
+    <!-- Botão de Conversão -->
     <Button
         android:id="@+id/btnConverter"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:padding="12dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/button_styled"
+        android:padding="14dp"
         android:text="@string/converter_recursos"
+        android:textColor="@color/textPrimary"
         android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvSaldoBitcoin" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

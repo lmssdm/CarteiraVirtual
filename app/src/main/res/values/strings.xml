@@ -13,6 +13,9 @@
     <string name="erro_valor_invalido">Por favor, insira um valor maior que zero.</string>
     <string name="conversao_sucesso">Conversão realizada com sucesso!</string>
 
+    <!-- Linha adicionada para corrigir o erro de compilação -->
+    <string name="erro_api_par_nao_encontrado">Erro na API: Par de moedas não encontrado.</string>
+
     <string-array name="moedas">
         <item>BRL</item>
         <item>USD</item>

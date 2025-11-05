@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Cores do tema base (geralmente não usadas diretamente) -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Cores do Novo Tema com Gradiente -->
+
+    <!-- Fundo -->
+    <color name="backgroundDark">#121212</color>
+    <color name="backgroundLight">#1A2327</color>
+
+    <!-- Cor dos "Cards" (BRL, USD, BTC) -->
+    <color name="cardBackground">#2C3E50</color> <!-- Um azul-acinzentado escuro -->
+
+    <!-- Textos -->
+    <color name="textPrimary">#FFFFFF</color> <!-- Branco para títulos e valores principais -->
+    <color name="textSecondary">#B0BEC5</color> <!-- Cinza claro para subtítulos -->
+
+    <!-- Destaques e Erros -->
+    <color name="accentGreen">#1DE9B6</color> <!-- Verde vibrante para botões e resultados -->
+    <color name="errorRed">#FF5252</color> <!-- Vermelho para mensagens de erro -->
+
 </resources>

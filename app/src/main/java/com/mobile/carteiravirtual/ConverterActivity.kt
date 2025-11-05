@@ -7,19 +7,14 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
-import com.mobile.carteiravirtual.api.RetrofitClient
-import kotlinx.coroutines.launch
-import java.lang.Exception
+import com.mobile.carteiravirtual.WalletViewModel.Companion.formatarValor
 
 class ConverterActivity : AppCompatActivity() {
 
-    // Compartilha o mesmo ViewModel da MainActivity
+    // ViewModel refatorado
     private val walletViewModel: WalletViewModel by viewModels()
-    private val apiService = RetrofitClient.instance
 
     private lateinit var spinnerOrigem: Spinner
     private lateinit var spinnerDestino: Spinner
@@ -45,138 +40,88 @@ class ConverterActivity : AppCompatActivity() {
         tvResultado = findViewById(R.id.tvResultadoConversao)
         tvErro = findViewById(R.id.tvErro)
 
+        // Configura o observador para o estado da conversão
+        setupObserver()
+
         btnConverter.setOnClickListener {
             iniciarConversao()
         }
     }
 
-    private fun iniciarConversao() {
-        // 1. Limpar UI de feedback
-        tvErro.visibility = View.GONE
-        tvResultado.visibility = View.GONE
-
-        // 2. Obter valores
-        val strOrigem = spinnerOrigem.selectedItem.toString()
-        val strDestino = spinnerDestino.selectedItem.toString()
-        val valorOrigemStr = etValor.text.toString()
-
-        // 3. Validar entradas
-        if (valorOrigemStr.isBlank() || valorOrigemStr.toDoubleOrNull() ?: 0.0 <= 0.0) {
-            mostrarErro(getString(R.string.erro_valor_invalido))
-            return
-        }
-
-        if (strOrigem == strDestino) {
-            mostrarErro(getString(R.string.erro_mesma_moeda))
-            return
-        }
-
-        val valorOrigem = valorOrigemStr.toDouble()
-        val moedaOrigem = Moeda.valueOf(strOrigem)
-        val moedaDestino = Moeda.valueOf(strDestino)
-
-        // 4. Verificar saldo
-        if (!walletViewModel.temSaldoSuficiente(moedaOrigem, valorOrigem)) {
-            mostrarErro(getString(R.string.erro_saldo_insuficiente))
-            return
-        }
-
-        // 5. Chamar API (dentro de uma Coroutine)
-        buscarCotacao(moedaOrigem, moedaDestino, valorOrigem)
-    }
-
-    private fun buscarCotacao(moedaOrigem: Moeda, moedaDestino: Moeda, valorOrigem: Double) {
-        // Mostrar ProgressBar
-        progressBar.visibility = View.VISIBLE
-        btnConverter.isEnabled = false
-
-        // --- INÍCIO DA CORREÇÃO (LÓGICA DO BITCOIN) ---
-        var parMoedaApi = "${moedaOrigem}-${moedaDestino}"
-        var chaveRespostaApi = "${moedaOrigem}${moedaDestino}"
-        var inverterTaxa = false // Flag para sabermos se usamos (1 / taxa)
-
-        // Se o destino for BTC (ex: BRL-BTC ou USD-BTC), a API não suporta.
-        // Devemos pedir o inverso (BTC-BRL ou BTC-USD) e inverter a taxa.
-        if (moedaDestino == Moeda.BTC) {
-            parMoedaApi = "${moedaDestino}-${moedaOrigem}"     // Ex: "BTC-BRL"
-            chaveRespostaApi = "${moedaDestino}${moedaOrigem}" // Ex: "BTCBRL"
-            inverterTaxa = true
-        } else if (moedaOrigem == Moeda.BTC && moedaDestino != Moeda.BTC) {
-            // Caso normal, ex: BTC-BRL ou BTC-USD, a API suporta
-            parMoedaApi = "${moedaOrigem}-${moedaDestino}"
-            chaveRespostaApi = "${moedaOrigem}${moedaDestino}"
-            inverterTaxa = false
-        }
-        // --- FIM DA CORREÇÃO ---
-
-
-        lifecycleScope.launch {
-            try {
-                // Usamos o 'parMoedaApi' corrigido
-                val response = apiService.getCotacao(parMoedaApi)
-
-                if (response.isSuccessful && response.body() != null) {
-                    // Usamos a 'chaveRespostaApi' corrigida
-                    val cotacaoItem = response.body()!![chaveRespostaApi]
-
-                    if (cotacaoItem != null) {
-                        val taxaOriginal = cotacaoItem.bid.toDoubleOrNull()
-                        if (taxaOriginal != null && taxaOriginal > 0) {
-
-                            // --- CORREÇÃO DA TAXA ---
-                            // Se a flag 'inverterTaxa' for verdadeira, usamos 1 / taxaOriginal
-                            val taxa = if (inverterTaxa) (1 / taxaOriginal) else taxaOriginal
-
-                            processarSucesso(moedaOrigem, valorOrigem, moedaDestino, taxa)
-                        } else {
-                            mostrarErro(getString(R.string.erro_api) + " (Taxa inválida)")
-                        }
-                    } else {
-                        mostrarErro(getString(R.string.erro_api) + " (Par ${parMoedaApi} não encontrado)")
-                    }
-
-                } else {
-                    mostrarErro(getString(R.string.erro_api) + " (Resposta: ${response.code()})")
+    private fun setupObserver() {
+        walletViewModel.estadoConversao.observe(this) { estado ->
+            // O 'when' deve ser exaustivo
+            when (estado) {
+                is EstadoConversao.Carregando -> {
+                    progressBar.visibility = View.VISIBLE
+                    btnConverter.isEnabled = false
+                    tvResultado.visibility = View.GONE
+                    tvErro.visibility = View.GONE
                 }
+                is EstadoConversao.Sucesso -> {
+                    progressBar.visibility = View.GONE
+                    btnConverter.isEnabled = true
+                    tvErro.visibility = View.GONE
 
-            } catch (e: Exception) {
-                // Trata erros de rede ou de parsing
-                e.printStackTrace()
-                mostrarErro(getString(R.string.erro_api))
-            } finally {
-                // Esconder ProgressBar
-                progressBar.visibility = View.GONE
-                btnConverter.isEnabled = true
+                    // Atualiza o texto de resultado
+                    val resultadoFormatado = formatarValor(estado.moedaDestino, estado.valorDestino)
+                    tvResultado.text = "${getString(R.string.valor_convertido)} $resultadoFormatado"
+                    tvResultado.visibility = View.VISIBLE
+                }
+                is EstadoConversao.Erro -> {
+                    progressBar.visibility = View.GONE
+                    btnConverter.isEnabled = true
+                    tvResultado.visibility = View.GONE
+
+                    // Mostra a mensagem de erro vinda do R.string
+                    tvErro.text = getString(estado.mensagem)
+                    tvErro.visibility = View.VISIBLE
+                }
+                is EstadoConversao.Ocioso -> {
+                    // Estado inicial ou após resetar
+                    progressBar.visibility = View.GONE
+                    btnConverter.isEnabled = true
+                    tvResultado.visibility = View.GONE
+                    tvErro.visibility = View.GONE
+                }
             }
         }
     }
 
-    private fun processarSucesso(moedaOrigem: Moeda, valorOrigem: Double, moedaDestino: Moeda, taxa: Double) {
-        val valorDestino = valorOrigem * taxa
+    private fun iniciarConversao() {
+        // 1. Obter valores da UI
+        val strOrigem = spinnerOrigem.selectedItem.toString()
+        val strDestino = spinnerDestino.selectedItem.toString()
+        val valorOrigemStr = etValor.text.toString()
 
-        // Atualiza o ViewModel (usando a função do companion object)
-        walletViewModel.realizarTransacao(moedaOrigem, valorOrigem, moedaDestino, valorDestino)
+        // 2. Tentar converter para Enum
+        // Usamos try/catch caso o valor do spinner não seja um Enum válido
+        try {
+            val moedaOrigem = Moeda.valueOf(strOrigem)
+            val moedaDestino = Moeda.valueOf(strDestino)
 
-        // Mostra o resultado na tela
-        val resultadoFormatado = walletViewModel.formatarValor(moedaDestino, valorDestino)
-        tvResultado.text = "${getString(R.string.valor_convertido)} $resultadoFormatado"
-        tvResultado.visibility = View.VISIBLE
+            // 3. Chamar o ViewModel
+            walletViewModel.iniciarConversao(moedaOrigem, moedaDestino, valorOrigemStr)
 
-        // Mostra um Toast e fecha a activity
-        Toast.makeText(this, getString(R.string.conversao_sucesso), Toast.LENGTH_LONG).show()
-
-        // Fecha a ConverterActivity e volta para a MainActivity
-        finish()
-    }
-
-    private fun mostrarErro(mensagem: String) {
-        tvErro.text = mensagem
-        tvErro.visibility = View.VISIBLE
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+            // Tratar erro se os nomes dos spinners não baterem com o Enum Moeda
+            tvErro.text = getString(R.string.erro_api_par_nao_encontrado)
+            tvErro.visibility = View.VISIBLE
+        }
     }
 
     // Para o botão "voltar" na ActionBar
     override fun onSupportNavigateUp(): Boolean {
+        // Reseta o estado no ViewModel antes de voltar
+        walletViewModel.resetarEstado()
         onBackPressedDispatcher.onBackPressed()
         return true
+    }
+
+    override fun onBackPressed() {
+        // Garante que o estado seja resetado
+        walletViewModel.resetarEstado()
+        super.onBackPressed()
     }
 }

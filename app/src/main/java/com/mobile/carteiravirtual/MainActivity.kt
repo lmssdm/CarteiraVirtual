@@ -4,13 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.mobile.carteiravirtual.WalletViewModel.Companion.formatarValor
 
 class MainActivity : AppCompatActivity() {
 
-    // Instancia o ViewModel
-    private val walletViewModel: WalletViewModel by viewModels()
+    // Não precisamos mais do 'by viewModels()' aqui para os saldos,
+    // pois vamos aceder aos dados estáticos (companion object) do WalletViewModel
 
     private lateinit var tvSaldoReal: TextView
     private lateinit var tvSaldoDolar: TextView
@@ -40,25 +40,37 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        tvSaldoReal.text = walletViewModel.formatarValor(Moeda.BRL, walletViewModel.saldoBRL.value ?: 0.0)
-        tvSaldoDolar.text = walletViewModel.formatarValor(Moeda.USD, walletViewModel.saldoUSD.value ?: 0.0)
-        tvSaldoBitcoin.text = walletViewModel.formatarValor(Moeda.BTC, walletViewModel.saldoBTC.value ?: 0.0)
+        // Força a atualização dos valores toda vez que a tela principal
+        // volta ao foco (ex: depois de fechar a ConverterActivity).
+        // Isto é crucial porque os LiveData estão num companion object.
+        atualizarValoresVisuais()
     }
-    // --- FIM DA CORREÇÃO ---
-
 
     private fun setupObservers() {
-        // O Observer garante atualizações *enquanto a tela estiver ativa*
-        walletViewModel.saldoBRL.observe(this) { saldo ->
-            tvSaldoReal.text = walletViewModel.formatarValor(Moeda.BRL, saldo)
+        // Observa os saldos estáticos do WalletViewModel
+        WalletViewModel.saldoBRL.observe(this) { saldo ->
+            tvSaldoReal.text = formatarValor(Moeda.BRL, saldo)
         }
 
-        walletViewModel.saldoUSD.observe(this) { saldo ->
-            tvSaldoDolar.text = walletViewModel.formatarValor(Moeda.USD, saldo)
+        WalletViewModel.saldoUSD.observe(this) { saldo ->
+            tvSaldoDolar.text = formatarValor(Moeda.USD, saldo)
         }
 
-        walletViewModel.saldoBTC.observe(this) { saldo ->
-            tvSaldoBitcoin.text = walletViewModel.formatarValor(Moeda.BTC, saldo)
+        WalletViewModel.saldoBTC.observe(this) { saldo ->
+            tvSaldoBitcoin.text = formatarValor(Moeda.BTC, saldo)
+        }
+    }
+
+    private fun atualizarValoresVisuais() {
+        // Pega os valores atuais do LiveData
+        WalletViewModel.saldoBRL.value?.let {
+            tvSaldoReal.text = formatarValor(Moeda.BRL, it)
+        }
+        WalletViewModel.saldoUSD.value?.let {
+            tvSaldoDolar.text = formatarValor(Moeda.USD, it)
+        }
+        WalletViewModel.saldoBTC.value?.let {
+            tvSaldoBitcoin.text = formatarValor(Moeda.BTC, it)
         }
     }
 }
