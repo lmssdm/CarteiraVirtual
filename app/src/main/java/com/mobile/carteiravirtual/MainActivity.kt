@@ -38,7 +38,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        tvSaldoReal.text = walletViewModel.formatarValor(Moeda.BRL, walletViewModel.saldoBRL.value ?: 0.0)
+        tvSaldoDolar.text = walletViewModel.formatarValor(Moeda.USD, walletViewModel.saldoUSD.value ?: 0.0)
+        tvSaldoBitcoin.text = walletViewModel.formatarValor(Moeda.BTC, walletViewModel.saldoBTC.value ?: 0.0)
+    }
+    // --- FIM DA CORREÇÃO ---
+
+
     private fun setupObservers() {
+        // O Observer garante atualizações *enquanto a tela estiver ativa*
         walletViewModel.saldoBRL.observe(this) { saldo ->
             tvSaldoReal.text = walletViewModel.formatarValor(Moeda.BRL, saldo)
         }

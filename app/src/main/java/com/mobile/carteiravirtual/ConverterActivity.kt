@@ -90,24 +90,46 @@ class ConverterActivity : AppCompatActivity() {
         progressBar.visibility = View.VISIBLE
         btnConverter.isEnabled = false
 
-        // Formato da API: "USD-BRL"
-        val parMoedaApi = "${moedaOrigem}-${moedaDestino}"
-        // Chave da resposta da API: "USDBRL"
-        val chaveRespostaApi = "${moedaOrigem}${moedaDestino}"
+        // --- INÍCIO DA CORREÇÃO (LÓGICA DO BITCOIN) ---
+        var parMoedaApi = "${moedaOrigem}-${moedaDestino}"
+        var chaveRespostaApi = "${moedaOrigem}${moedaDestino}"
+        var inverterTaxa = false // Flag para sabermos se usamos (1 / taxa)
+
+        // Se o destino for BTC (ex: BRL-BTC ou USD-BTC), a API não suporta.
+        // Devemos pedir o inverso (BTC-BRL ou BTC-USD) e inverter a taxa.
+        if (moedaDestino == Moeda.BTC) {
+            parMoedaApi = "${moedaDestino}-${moedaOrigem}"     // Ex: "BTC-BRL"
+            chaveRespostaApi = "${moedaDestino}${moedaOrigem}" // Ex: "BTCBRL"
+            inverterTaxa = true
+        } else if (moedaOrigem == Moeda.BTC && moedaDestino != Moeda.BTC) {
+            // Caso normal, ex: BTC-BRL ou BTC-USD, a API suporta
+            parMoedaApi = "${moedaOrigem}-${moedaDestino}"
+            chaveRespostaApi = "${moedaOrigem}${moedaDestino}"
+            inverterTaxa = false
+        }
+        // --- FIM DA CORREÇÃO ---
+
 
         lifecycleScope.launch {
             try {
+                // Usamos o 'parMoedaApi' corrigido
                 val response = apiService.getCotacao(parMoedaApi)
 
                 if (response.isSuccessful && response.body() != null) {
+                    // Usamos a 'chaveRespostaApi' corrigida
                     val cotacaoItem = response.body()!![chaveRespostaApi]
 
                     if (cotacaoItem != null) {
-                        val taxa = cotacaoItem.bid.toDoubleOrNull()
-                        if (taxa != null) {
+                        val taxaOriginal = cotacaoItem.bid.toDoubleOrNull()
+                        if (taxaOriginal != null && taxaOriginal > 0) {
+
+                            // --- CORREÇÃO DA TAXA ---
+                            // Se a flag 'inverterTaxa' for verdadeira, usamos 1 / taxaOriginal
+                            val taxa = if (inverterTaxa) (1 / taxaOriginal) else taxaOriginal
+
                             processarSucesso(moedaOrigem, valorOrigem, moedaDestino, taxa)
                         } else {
-                            mostrarErro(getString(R.string.erro_api))
+                            mostrarErro(getString(R.string.erro_api) + " (Taxa inválida)")
                         }
                     } else {
                         mostrarErro(getString(R.string.erro_api) + " (Par ${parMoedaApi} não encontrado)")
@@ -132,7 +154,7 @@ class ConverterActivity : AppCompatActivity() {
     private fun processarSucesso(moedaOrigem: Moeda, valorOrigem: Double, moedaDestino: Moeda, taxa: Double) {
         val valorDestino = valorOrigem * taxa
 
-        // Atualiza o ViewModel
+        // Atualiza o ViewModel (usando a função do companion object)
         walletViewModel.realizarTransacao(moedaOrigem, valorOrigem, moedaDestino, valorDestino)
 
         // Mostra o resultado na tela
