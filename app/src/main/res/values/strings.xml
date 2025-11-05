@@ -12,7 +12,7 @@
     <string name="erro_mesma_moeda">Moeda de origem e destino não podem ser iguais.</string>
     <string name="erro_valor_invalido">Por favor, insira um valor maior que zero.</string>
     <string name="conversao_sucesso">Conversão realizada com sucesso!</string>
-
+    <string name="voltar">Voltar</string>
     <string-array name="moedas">
         <item>BRL</item>
         <item>USD</item>
