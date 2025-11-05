@@ -5,8 +5,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    // URL base da Awesome API
-    private const val BASE_URL = "[https://economia.awesomeapi.com.br/](https://economia.awesomeapi.com.br/)"
+    // URL base da Awesome API (CORRIGIDA)
+    private const val BASE_URL = "https://economia.awesomeapi.com.br/"
 
     val instance: ApiService by lazy {
         val retrofit = Retrofit.Builder()
