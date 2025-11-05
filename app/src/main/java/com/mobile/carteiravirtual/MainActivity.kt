@@ -21,18 +21,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Inicializa as Views
         tvSaldoReal = findViewById(R.id.tvSaldoReal)
         tvSaldoDolar = findViewById(R.id.tvSaldoDolar)
         tvSaldoBitcoin = findViewById(R.id.tvSaldoBitcoin)
         btnConverter = findViewById(R.id.btnConverter)
 
-        // Configura os Observadores para atualizar a UI quando os saldos mudarem
         setupObservers()
 
-        // Configura o clique do botão
         btnConverter.setOnClickListener {
-            // Intenção de ir para a ConverterActivity
             val intent = Intent(this, ConverterActivity::class.java)
             startActivity(intent)
         }
@@ -40,14 +36,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Força a atualização dos valores toda vez que a tela principal
-        // volta ao foco (ex: depois de fechar a ConverterActivity).
-        // Isto é crucial porque os LiveData estão num companion object.
         atualizarValoresVisuais()
     }
 
     private fun setupObservers() {
-        // Observa os saldos estáticos do WalletViewModel
         WalletViewModel.saldoBRL.observe(this) { saldo ->
             tvSaldoReal.text = formatarValor(Moeda.BRL, saldo)
         }
@@ -62,7 +54,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun atualizarValoresVisuais() {
-        // Pega os valores atuais do LiveData
         WalletViewModel.saldoBRL.value?.let {
             tvSaldoReal.text = formatarValor(Moeda.BRL, it)
         }
